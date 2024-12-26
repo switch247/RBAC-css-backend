@@ -3,6 +3,17 @@
 
 This project demonstrates Role-Based Access Control (RBAC) in a React application. It includes examples of how to manage user roles and permissions to control access to different parts of the application.
 
+## Technologies Used
+
+- **Backend**: Node.js, Express
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+- **Logging**: Winston with crypto hashing
+- **Password Hashing**: bcrypt
+- **MFA**: Africastalking
+- **Containerization**: Docker
+
+
 ## Features
 
 - User authentication and authorization
