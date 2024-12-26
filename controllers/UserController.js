@@ -47,10 +47,14 @@ class UserController {
   static async updateUser(req, res) {
     try {
       const { id } = req.params;
-      const { name, email, password } = req.body;
+      const { name, email, phoneNumber } = req.body;
+      const { userId, userRole } = req;
+      if (userRole !== 'ADMIN' ||   userRole === 'USER' && userId  && userId !== id ) {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
       const updatedUser = await prisma.users.update({
-        where: { id: Number(id) },
-        data: { name, email, password },
+        where: { id: id},
+        data: { name, email, phoneNumber },
       });
       logger.info(`Updated user with id: ${id}`);
       res.json(updatedUser);

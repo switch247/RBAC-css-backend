@@ -74,7 +74,12 @@ class AuthController {
         data: { failedAttempts: 0 },
       });
 
-      const token = AuthService.generateToken(user);
+      // Generate JWT token
+      const token = AuthService.generateToken({
+        id: user.id,
+        role: user.role,
+        exp: Math.floor(Date.now() / 1000) + (60 * 60) // Token expires in 1 hour
+      });
 
       logger.info(`User logged in: ${req.body.username}`);
       res.status(200).json({ message: 'Login successful', token });

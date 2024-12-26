@@ -1,7 +1,10 @@
 const cron = require('node-cron');
 const { exec } = require('child_process');
 const logger = require('../config/logger');
+const { PrismaClient } = require('@prisma/client');
+
 require('dotenv').config();
+
 
 const BACKUP_DIR = './backups'; // Directory where backups will be stored
 const DB_NAME = process.env.DB_NAME || 'secureaccess';
@@ -30,4 +33,46 @@ const backupDatabase = () => {
 cron.schedule('0 2 * * *', () => {
   logger.info('Starting daily database backup...');
   backupDatabase();
+});
+
+
+
+
+
+
+
+const prisma = new PrismaClient();
+
+// cron job to unlock users that have been locked for more than an hour
+const unlockUsers = async () => {
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        isLocked: true,
+        updatedAt: {
+          lt: oneHourAgo,
+        },
+      },
+    });
+
+    for (const user of users) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { isLocked: false },
+      });
+      logger.info(`Unlocked user: ${user.username}`);
+    }
+  } catch (error) {
+    logger.error(`Error unlocking users: ${error.message}`);
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
+// Schedule the unlock job to run every hour
+cron.schedule('0 * * * *', () => {
+  logger.info('Starting user unlock job...');
+  unlockUsers();
 });
