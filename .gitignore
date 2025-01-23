@@ -1,3 +1,5 @@
-/node_modules
-.env
-logs/
+/Backend/node_modules
+/Backend/.env
+
+/Client/node_modules
+/Client/.env
